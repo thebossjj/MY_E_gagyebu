@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>나의 가계부</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EEF2F0;--card:#fff;--ink:#1B2A2F;--mute:#6B7C80;--line:#DCE3E1;--inc:#1F8A70;--sav:#3A6FD8;--exp:#D8573C;--rem:#E0A526;--chip:#E6ECEA;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10181A;--card:#1A262A;--ink:#E8F0EE;--mute:#8CA0A4;--line:#2B3A3F;--inc:#3FC29E;--sav:#6C9BFF;--exp:#F0795F;--rem:#F0BE45;--chip:#243238}}
+:root[data-theme="dark"]{--bg:#10181A;--card:#1A262A;--ink:#E8F0EE;--mute:#8CA0A4;--line:#2B3A3F;--inc:#3FC29E;--sav:#6C9BFF;--exp:#F0795F;--rem:#F0BE45;--chip:#243238}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans KR",-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:15px;-webkit-text-size-adjust:100%}
+#app{max-width:520px;margin:0 auto;padding:16px 14px 80px}
+h1{font-size:22px;font-weight:900;margin:4px 0 0}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.yr{display:flex;align-items:center;gap:6px}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+.ib{width:34px;height:34px;border-radius:50%;background:var(--chip);font-weight:700}
+.card{background:var(--card);border-radius:16px;padding:14px;margin-bottom:12px;border:1px solid var(--line)}
+.sum{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sum div{padding:10px 12px;border-radius:12px;background:var(--bg)}
+.sum small{display:block;color:var(--mute);font-size:12px}
+.sum b{font-size:17px;font-weight:900}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
+.tog{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.tg{padding:6px 11px;border-radius:99px;background:var(--chip);font-size:13px;font-weight:500;color:var(--mute)}
+.tg.on{background:var(--ink);color:var(--bg)}
+.scroll{overflow-x:auto;margin:0 -4px;padding:0 4px}
+.cg svg{display:block;width:100%;height:auto}.ch{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}.ch b{font-weight:900;font-size:15px}.ch span{font-size:13px;color:var(--mute);font-weight:700}.dd{display:block;font-size:11px;color:var(--mute);line-height:1.2}.lk{font-size:12px;color:var(--mute);background:var(--chip);opacity:.85;padding:5px 11px;border-radius:99px;margin-top:8px}.lk.go{color:var(--ink);font-weight:700}.cp{margin-top:10px;padding:10px;border-radius:12px;background:var(--bg)}.cpt{font-size:12px;color:var(--mute);margin-bottom:8px}.cpr{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mute)}.cpr input{flex:1;padding:7px 8px}.cpq{display:flex;gap:6px;flex-wrap:wrap}.cpm{font-size:12px;color:var(--inc);margin-top:8px}.acct{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:var(--mute);margin:-4px 2px 10px}.acct .lk{margin-top:0;flex:none}.acct span{min-width:0;overflow-wrap:anywhere}
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mb{padding:11px 8px;border-radius:12px;background:var(--card);border:1px solid var(--line);text-align:left}
+.mb b{display:block;font-size:15px;font-weight:900}
+.mb small{font-size:12px;color:var(--mute)}
+.mb .r{font-size:13px;font-weight:700}
+.pos{color:var(--inc)}.neg{color:var(--exp)}
+.sec{display:flex;align-items:center;justify-content:space-between;width:100%;padding:0;margin-bottom:8px}
+.sec h2{margin:0;font-size:16px;font-weight:900;display:flex;align-items:center;gap:7px}
+.sec .t{font-weight:700}
+.car{display:inline-block;transition:transform .2s;color:var(--mute)}
+.shut .car{transform:rotate(-90deg)}
+.it{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--line)}
+.it span:first-child{flex:1;min-width:0;overflow-wrap:anywhere}
+.it em{font-style:normal;font-size:12px;color:var(--mute);background:var(--chip);padding:2px 7px;border-radius:99px}
+.it .x{color:var(--mute);width:26px;height:26px;border-radius:50%}
+.add{display:flex;gap:6px;margin-top:8px}
+input{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 10px;min-width:0;font-size:16px}
+input:focus,button:focus-visible{outline:2px solid var(--sav);outline-offset:1px}
+.add{flex-wrap:wrap}.add .dt{flex:1 1 100%}.add .nm{flex:1.3 1 0}.add .am{flex:1 1 0}
+.ab{background:var(--ink);color:var(--bg);border-radius:10px;padding:0 14px;font-weight:700}
+.empty{color:var(--mute);font-size:13px;padding:6px 0}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin:0 -2px}
+.chip{flex:none;padding:8px 13px;border-radius:99px;background:var(--chip);font-weight:500;white-space:nowrap;text-align:center}
+.chip small{display:block;font-size:11px;color:var(--mute)}
+.chip.on{background:var(--exp);color:#fff}.chip.on small{color:#ffe3dc}
+.bar{position:sticky;bottom:0;margin:0 -14px;padding:12px 14px calc(12px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);display:flex;justify-content:space-between;align-items:center;border-radius:16px 16px 0 0}
+.bar b{font-size:22px;font-weight:900}
+.calc{font-size:13px;color:var(--mute);line-height:1.8}
+.calc div{display:flex;justify-content:space-between}
+.hd{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.hd h1{flex:1}
+.cnote{font-size:12px;color:var(--mute);margin:6px 2px 0}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const KEY="gagyebu-v1";
+let S={year:new Date().getFullYear(),cats:["식비","생필품","쇼핑","병원","교통비","경조사","기타"],d:{}};
+try{const r=localStorage.getItem(KEY);if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}
+let view="home",month=1,cat=null,shut={saving:false,fixed:false},show={inc:1,exp:1,sav:1,rem:1},addCat=false,cp=null,cpMsg="";
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}if(window.cloud&&cloud.push)cloud.push()};
+const won=n=>(n<0?"-":"")+Math.abs(Math.round(n)).toLocaleString("ko-KR")+"원";
+const short=n=>{const a=Math.abs(n);const s=a>=1e8?(a/1e8).toFixed(1)+"억":a>=1e4?Math.round(a/1e4)+"만":a.toLocaleString();return(n<0?"-":"")+s};
+const M=(y,m)=>{const k=y+"-"+m;return S.d[k]||(S.d[k]={income:[],saving:[],fixed:[],living:[]})};
+const sum=a=>a.reduce((t,x)=>t+x.a,0);
+function tot(y,m){const k=y+"-"+m,o=S.d[k]||{income:[],saving:[],fixed:[],living:[]};
+const inc=sum(o.income),sav=sum(o.saving),fx=sum(o.fixed),lv=sum(o.living),exp=fx+lv;
+return{inc,sav,fx,lv,exp,rem:inc-sav-exp}}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const byD=(p,q)=>(p.d||"").localeCompare(q.d||"");
+function cpUI(k){const n=M(S.year,month)[k].length;
+if(cp!==k)return `<button class="lk" data-a="cpopen" data-v="${k}">그대로 복사하기</button>`;
+const ny=month===12?S.year+1:S.year,nm=month===12?1:month+1,f=ny+"-"+String(nm).padStart(2,"0");
+return `<div class="cp"><div class="cpt">${month}월의 항목 ${n}개를 아래 기간에 똑같이 복사해요.</div>
+<div class="cpr"><span>기간</span><input type="month" id="cpf-${k}" value="${f}"><span>~</span><input type="month" id="cpt-${k}" value="${ny}-12"></div>
+<div class="cpq">${[["end","연말까지"],["6","6개월"],["12","1년"],["24","2년"],["36","3년"]].map(([v,l])=>`<button class="lk" data-a="cpq" data-k="${k}" data-v="${v}">${l}</button>`).join("")}</div>
+<div class="cpq"><button class="lk go" data-a="cpdo" data-k="${k}">복사하기</button><button class="lk" data-a="cpx">닫기</button></div>${cpMsg?`<div class="cpm">${cpMsg}</div>`:""}</div>`}
+const fmtD=d=>{if(!d)return"";const w="일월화수목금토"[new Date(d+"T00:00:00").getDay()];return +d.slice(5,7)+"/"+ +d.slice(8,10)+" ("+w+")"};
+const defD=()=>{const n=new Date(),mm=String(month).padStart(2,"0");return (n.getFullYear()===S.year&&n.getMonth()+1===month)?S.year+"-"+mm+"-"+String(n.getDate()).padStart(2,"0"):S.year+"-"+mm+"-01"};
+const dateIn=k=>{const mm=String(month).padStart(2,"0");return `<input type="date" class="dt" id="d-${k}" value="${defD()}" min="${S.year}-${mm}-01" max="${S.year}-${mm}-${String(new Date(S.year,month,0).getDate()).padStart(2,"0")}" aria-label="날짜">`};
+function chart(T,k,n,c){const W=360,H=150,pt=16,pb=22,vals=T.map(t=>t[k]),mx=Math.max(1,...vals),mn=Math.min(0,...vals),neg=mn<0?12:0,sc=(H-pt-pb-neg)/(mx-mn),zero=pt+mx*sc,gw=W/12,bw=gw-10;
+let g=`<line x1="0" x2="${W}" y1="${zero}" y2="${zero}" stroke="var(--line)"/>`;
+vals.forEach((v,i)=>{const h=Math.abs(v)*sc,x=i*gw+5,y=v>=0?zero-h:zero;
+if(v){g+=`<rect x="${x}" y="${y}" width="${bw}" height="${Math.max(h,1.5)}" rx="3" fill="var(${c})"/><text x="${x+bw/2}" y="${v>=0?y-3:y+h+10}" text-anchor="middle" font-size="8.5" font-weight="700" fill="var(--ink)">${short(v)}</text>`}
+g+=`<text x="${x+bw/2}" y="${H-6}" text-anchor="middle" font-size="10" fill="var(--mute)">${i+1}월</text>`});
+return `<div class="card cg"><div class="ch"><b><i class="dot" style="background:var(${c})"></i>${n}</b><span>올해 ${won(vals.reduce((a,b)=>a+b,0))}</span></div><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="월별 ${n} 그래프">${g}</svg></div>`}
+
+function home(){
+const T=[];for(let m=1;m<=12;m++)T.push(tot(S.year,m));
+const Y=T.reduce((a,t)=>({inc:a.inc+t.inc,sav:a.sav+t.sav,exp:a.exp+t.exp,rem:a.rem+t.rem}),{inc:0,sav:0,exp:0,rem:0});
+const ser=[["inc","소득","--inc"],["exp","소비","--exp"],["sav","저축","--sav"],["rem","남은 돈","--rem"]];
+return `<div class="top"><h1>나의 가계부</h1><div class="yr"><button class="ib" data-a="yr" data-v="-1" aria-label="이전 해">‹</button><b>${S.year}</b><button class="ib" data-a="yr" data-v="1" aria-label="다음 해">›</button></div></div>
+${acct()}<div class="card"><div class="sum">
+<div><small><i class="dot" style="background:var(--inc)"></i>올해 소득</small><b>${won(Y.inc)}</b></div>
+<div><small><i class="dot" style="background:var(--exp)"></i>올해 소비</small><b>${won(Y.exp)}</b></div>
+<div><small><i class="dot" style="background:var(--sav)"></i>올해 저축</small><b>${won(Y.sav)}</b></div>
+<div><small><i class="dot" style="background:var(--rem)"></i>올해 남은 돈</small><b class="${Y.rem<0?"neg":""}">${won(Y.rem)}</b></div></div></div>
+${ser.map(([k,n,c])=>chart(T,k,n,c)).join("")}
+<div class="mgrid">${T.map((t,i)=>`<button class="mb" data-a="open" data-v="${i+1}"><b>${i+1}월</b><small>남은 돈</small><div class="r ${t.rem<0?"neg":t.inc||t.exp?"pos":""}">${t.inc||t.exp||t.sav?short(t.rem)+"원":"기록하기"}</div></button>`).join("")}</div>`}
+
+function list(key,label,color,opts={}){
+const o=M(S.year,month),a=o[key],isShut=opts.fold&&shut[key];
+return `<div class="card ${isShut?"shut":""}"><button class="sec" data-a="${opts.fold?"fold":"noop"}" data-v="${key}"><h2><i class="dot" style="background:${color}"></i>${label}${opts.fold?'<span class="car">▾</span>':""}</h2><span class="t">${won(sum(a))}</span></button>
+${isShut?"":a.map((x,i)=>({...x,i})).sort(byD).map(x=>`<div class="it"><span><small class="dd">${fmtD(x.d)}</small>${esc(x.n)}</span><span>${won(x.a)}</span><button class="x" data-a="del" data-k="${key}" data-v="${x.i}" aria-label="삭제">✕</button></div>`).join("")||`<div class="empty">${opts.empty}</div>`}
+${isShut?"":`<div class="add">${dateIn(key)}<input class="nm" id="n-${key}" placeholder="항목 이름" maxlength="30"><input class="am" id="a-${key}" placeholder="금액" inputmode="numeric"><button class="ab" data-a="add" data-k="${key}">추가</button></div>${opts.fold?cpUI(key):""}`}</div>`}
+
+function monthView(){
+const o=M(S.year,month),t=tot(S.year,month);
+if(!cat||!S.cats.includes(cat))cat=S.cats[0];
+const per=c=>sum(o.living.filter(x=>x.c===c));
+const items=o.living.map((x,i)=>({...x,i})).filter(x=>x.c===cat).sort(byD);
+return `<div class="hd"><button class="ib" data-a="home" aria-label="홈으로">‹</button><h1>${S.year}년 ${month}월</h1><button class="ib" data-a="mo" data-v="-1" aria-label="이전 달">←</button><button class="ib" data-a="mo" data-v="1" aria-label="다음 달">→</button></div>
+${list("income","소득","var(--inc)",{empty:"월급, 부수입 등을 추가해 보세요."})}
+${list("saving","저축","var(--sav)",{fold:1,empty:"적금, 투자 등 저축한 돈을 추가해 보세요."})}
+<div class="card"><div class="sec" style="margin:0"><h2><i class="dot" style="background:var(--exp)"></i>지출</h2><span class="t">${won(t.exp)}</span></div></div>
+${list("fixed","고정지출","var(--exp)",{fold:1,empty:"월세, 통신비, 보험료 등을 추가해 보세요."})}
+<div class="card"><div class="sec" style="margin-bottom:10px"><h2><i class="dot" style="background:var(--exp)"></i>생활지출</h2><span class="t">${won(t.lv)}</span></div>
+<div class="chips">${S.cats.map(c=>`<button class="chip ${c===cat?"on":""}" data-a="cat" data-v="${esc(c)}">${esc(c)}<small>${won(per(c))}</small></button>`).join("")}<button class="chip" data-a="newcat" aria-label="카테고리 추가">＋ 추가</button></div>
+${addCat?`<div class="add" style="margin:0 0 8px"><input class="nm" id="nc" placeholder="새 카테고리 이름" maxlength="10"><button class="ab" data-a="savecat">만들기</button></div>`:""}
+${items.map(x=>`<div class="it"><span><small class="dd">${fmtD(x.d)}</small>${esc(x.n)}</span><span>${won(x.a)}</span><button class="x" data-a="del" data-k="living" data-v="${x.i}" aria-label="삭제">✕</button></div>`).join("")||`<div class="empty">${esc(cat)}에 쓴 돈을 기록해 보세요.</div>`}
+<div class="add">${dateIn("living")}<input class="nm" id="n-living" placeholder="${esc(cat)} 내용" maxlength="30"><input class="am" id="a-living" placeholder="금액" inputmode="numeric"><button class="ab" data-a="add" data-k="living">추가</button></div></div>
+<div class="card"><div class="calc"><div><span>소득</span><span>${won(t.inc)}</span></div><div><span>− 저축</span><span>${won(t.sav)}</span></div><div><span>− 고정지출</span><span>${won(t.fx)}</span></div><div><span>− 생활지출</span><span>${won(t.lv)}</span></div></div></div>
+<div class="bar"><span>${month}월에 남은 돈</span><b style="color:${t.rem<0?"var(--exp)":"var(--rem)"}">${won(t.rem)}</b></div>`}
+
+window.App={get:()=>JSON.stringify({cats:S.cats,d:S.d}),set:o=>{if(o.cats)S.cats=o.cats;S.d=o.d||{};try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}render()},hasData:()=>Object.values(S.d).some(o=>o.income.length+o.saving.length+o.fixed.length+o.living.length)};
+const ERR={"auth/popup-blocked":"팝업이 차단됐어요. 이메일로 로그인해 주세요.","auth/popup-closed-by-user":"로그인 창이 닫혔어요.","auth/invalid-credential":"이메일이나 비밀번호가 맞지 않아요.","auth/wrong-password":"이메일이나 비밀번호가 맞지 않아요.","auth/user-not-found":"가입되지 않은 이메일이에요. 새 계정 만들기를 눌러 주세요.","auth/email-already-in-use":"이미 가입된 이메일이에요. 로그인을 눌러 주세요.","auth/weak-password":"비밀번호는 6자 이상이어야 해요.","auth/invalid-email":"이메일 형식을 확인해 주세요.","auth/unauthorized-domain":"이 주소가 Firebase 허용 도메인에 없어요.","auth/missing-password":"비밀번호를 입력해 주세요."};
+const errMsg=e=>ERR[e.code]||("로그인에 실패했어요 ("+(e.code||e.message)+")");
+function acct(){const c=window.cloud;if(!c)return"";
+if(c.user)return `<div class="acct"><span>${esc(c.user.email||"로그인됨")} · ${esc(c.status)}</span><button class="lk" data-a="out">로그아웃</button></div>`;
+if(!c.open)return `<div class="acct"><span>로그인하면 노트북과 폰에서 같은 데이터를 써요</span><button class="lk" data-a="lo">로그인</button></div>`;
+return `<div class="card"><button class="lk go" data-a="goog" style="margin-top:0">Google로 계속하기</button>
+<div class="add"><input class="nm" id="em" type="email" placeholder="이메일" autocomplete="email"><input class="am" id="pw" type="password" placeholder="비밀번호 6자 이상" autocomplete="current-password"></div>
+<div class="cpq"><button class="lk go" data-a="si">로그인</button><button class="lk" data-a="su">새 계정 만들기</button><button class="lk" data-a="lx">닫기</button></div>${c.err?`<div class="cpm" style="color:var(--exp)">${esc(c.err)}</div>`:""}</div>`}
+function render(){
+const ae=document.activeElement,id=ae&&ae.id,keep={};
+document.querySelectorAll("input").forEach(i=>{if(i.id)keep[i.id]=i.value});
+document.getElementById("app").innerHTML=view==="home"?home():monthView();
+Object.keys(keep).forEach(k=>{const e=document.getElementById(k);if(e&&keep[k])e.value=keep[k]});
+if(id){const e=document.getElementById(id);if(e)e.focus()}}
+
+document.addEventListener("click",e=>{
+const b=e.target.closest("[data-a]");if(!b)return;
+const a=b.dataset.a,v=b.dataset.v,k=b.dataset.k;
+if(a==="yr")S.year+=+v;
+else if(a==="sh")show[v]=!show[v];
+else if(a==="open"){view="m";month=+v;cp=null;window.scrollTo(0,0)}
+else if(a==="home"){view="home";cp=null;window.scrollTo(0,0)}
+else if(a==="mo"){cp=null;month=Math.min(12,Math.max(1,month+ +v));document.querySelectorAll("input[type=date]").forEach(i=>i.value="")}
+else if(a==="fold")shut[v]=!shut[v];
+else if(a==="cat")cat=v;
+else if(a==="newcat"){addCat=!addCat}
+else if(a==="savecat"){const n=document.getElementById("nc").value.trim();if(n&&!S.cats.includes(n)){S.cats.push(n);cat=n}addCat=false;document.getElementById("nc")&&0}
+else if(a==="del"){M(S.year,month)[k].splice(+v,1)}
+else if(a==="lo"){cloud.open=true;cloud.err=""}
+else if(a==="lx"){cloud.open=false}
+else if(a==="out"){cloud.out();return}
+else if(a==="goog"){cloud.google().then(()=>{cloud.open=false}).catch(e=>{cloud.err=errMsg(e);render()});return}
+else if(a==="si"||a==="su"){const em=document.getElementById("em").value.trim(),pw=document.getElementById("pw").value;cloud[a==="si"?"signin":"signup"](em,pw).then(()=>{cloud.open=false;cloud.err=""}).catch(e=>{cloud.err=errMsg(e);render()});return}
+else if(a==="cpopen"){cp=v;cpMsg=""}
+else if(a==="cpx"){cp=null}
+else if(a==="cpq"){const f=document.getElementById("cpf-"+k).value;if(f){const[y,m]=f.split("-").map(Number);let t;if(v==="end")t=y+"-12";else{const i=y*12+m-1+ +v-1;t=Math.floor(i/12)+"-"+String(i%12+1).padStart(2,"0")}document.getElementById("cpt-"+k).value=t}return}
+else if(a==="cpdo"){const f=document.getElementById("cpf-"+k).value,t=document.getElementById("cpt-"+k).value,src=M(S.year,month)[k].slice();
+if(!src.length)cpMsg="복사할 항목이 없어요. 먼저 항목을 추가해 주세요.";
+else if(!f||!t||f>t)cpMsg="기간을 확인해 주세요. 시작이 끝보다 늦을 수 없어요.";
+else{let[y,m]=f.split("-").map(Number);const[ey,em]=t.split("-").map(Number);let months=0,added=0;
+while((y<ey||(y===ey&&m<=em))&&months<120){if(!(y===S.year&&m===month)){const tg=M(y,m)[k];src.forEach(x=>{const day=+(x.d||"").slice(8,10)||1,nd=y+"-"+String(m).padStart(2,"0")+"-"+String(Math.min(day,new Date(y,m,0).getDate())).padStart(2,"0");if(!tg.some(z=>z.n===x.n&&z.a===x.a&&z.d===nd)){tg.push({n:x.n,a:x.a,d:nd});added++}});months++}
+m++;if(m>12){m=1;y++}}
+cpMsg=added?months+"개월에 "+added+"개 항목을 복사했어요.":"같은 항목이 이미 있어서 새로 복사된 건 없어요."}}
+else if(a==="add"){
+const n=document.getElementById("n-"+k),m=document.getElementById("a-"+k);
+const amt=parseInt(String(m.value).replace(/[^0-9]/g,""),10);
+if(!amt){m.focus();return}
+const dt=document.getElementById("d-"+k);const it={n:n.value.trim()||(k==="living"?cat:"항목"),a:amt,d:(dt&&dt.value)||defD()};
+if(k==="living")it.c=cat;
+M(S.year,month)[k].push(it);n.value="";m.value=""}
+else return;
+save();render()});
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.tagName==="INPUT"){const r=e.target.closest(".add");const bt=r&&r.querySelector("button");if(bt)bt.click()}});
+render();
+</script>
+<script type="module">
+const CFG={apiKey:"AIzaSyB1R3gjKFC91SrERjEjxwIznEzghd26vIk",authDomain:"my-e-gagyebu.firebaseapp.com",projectId:"my-e-gagyebu",appId:"1:891474814921:web:2f9f18465cb4dd60e5aa18"};
+if(!CFG.apiKey.startsWith("YOUR_")){try{
+const B="https://www.gstatic.com/firebasejs/10.14.1/";
+const [{initializeApp},A,F]=await Promise.all([import(B+"firebase-app.js"),import(B+"firebase-auth.js"),import(B+"firebase-firestore.js")]);
+const app=initializeApp(CFG),auth=A.getAuth(app),db=F.getFirestore(app);
+const c=window.cloud={user:null,status:"",open:false,err:"",
+google:()=>A.signInWithPopup(auth,new A.GoogleAuthProvider()),
+signin:(e,p)=>A.signInWithEmailAndPassword(auth,e,p),
+signup:(e,p)=>A.createUserWithEmailAndPassword(auth,e,p),
+out:()=>A.signOut(auth)};
+let ref=null,unsub=null,timer=null,inflight=0;
+const ui=()=>window.render&&window.render();
+c.push=()=>{if(!ref)return;clearTimeout(timer);timer=setTimeout(()=>{timer=null;inflight++;
+F.setDoc(ref,{data:App.get(),updated:Date.now()}).then(()=>{c.status="동기화됨"}).catch(e=>{c.status="저장 실패 ("+(e.code||e.message)+")"}).finally(()=>{inflight--;ui()})},500)};
+A.onAuthStateChanged(auth,async u=>{
+c.user=u;if(unsub){unsub();unsub=null}
+if(!u){ref=null;c.status="";ui();return}
+ref=F.doc(db,"users",u.uid);c.status="동기화 중…";ui();
+try{const snap=await F.getDoc(ref);
+if(snap.exists())App.set(JSON.parse(snap.data().data));
+else if(App.hasData())await F.setDoc(ref,{data:App.get(),updated:Date.now()});
+unsub=F.onSnapshot(ref,s=>{if(timer||inflight||s.metadata.hasPendingWrites||!s.exists())return;const d=s.data().data;if(d!==App.get())App.set(JSON.parse(d))});
+c.status="동기화됨"}
+catch(e){c.status="연결 실패 ("+(e.code||e.message)+")"}
+ui()});
+ui();
+}catch(e){console.error("Firebase load failed",e)}}
+</script>
+</body>
+</html>
