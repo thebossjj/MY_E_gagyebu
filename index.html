@@ -49,6 +49,11 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 input{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 10px;min-width:0;font-size:16px}
 input:focus,button:focus-visible{outline:2px solid var(--sav);outline-offset:1px}
 .add{flex-wrap:wrap}.add .dt{flex:1 1 100%}.add .nm{flex:1.3 1 0}.add .am{flex:1 1 0}
+.add .dtr{flex:1 1 100%;display:flex;gap:6px}.add .dtr .dt{flex:1}.dtr .ib{flex:none;width:42px;height:auto;border-radius:10px}
+select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 10px;font-size:16px;flex:1 1 100%;min-width:0}
+.it.ed{display:block}.it .x.pn{font-size:14px}
+.cbx{margin-bottom:10px}.cb{display:block;width:100%;text-align:left;padding:5px 0}.cl{display:flex;justify-content:space-between;gap:8px;font-size:13px;margin-bottom:4px}.cl span:last-child{color:var(--mute)}.ct{height:9px;border-radius:99px;background:var(--chip);overflow:hidden}.ct i{display:block;height:100%;border-radius:99px}
+.ai h3{font-size:13px;margin:12px 0 4px;color:var(--mute);font-weight:700}.ai ul{margin:0;padding-left:18px}.ai li{margin:5px 0;line-height:1.5;font-size:14px;overflow-wrap:anywhere}.ai .sub{font-size:12px;color:var(--mute);margin:2px 0 0}
 .ab{background:var(--ink);color:var(--bg);border-radius:10px;padding:0 14px;font-weight:700}
 .empty{color:var(--mute);font-size:13px;padding:6px 0}
 .chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin:0 -2px}
@@ -70,7 +75,7 @@ input:focus,button:focus-visible{outline:2px solid var(--sav);outline-offset:1px
 const KEY="gagyebu-v1";
 let S={year:new Date().getFullYear(),cats:["식비","생필품","쇼핑","병원","교통비","경조사","기타"],d:{}};
 try{const r=localStorage.getItem(KEY);if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}
-let view="home",month=1,cat=null,shut={saving:false,fixed:false},show={inc:1,exp:1,sav:1,rem:1},addCat=false,cp=null,cpMsg="";
+let view="home",month=1,cat=null,shut={saving:false,fixed:false},show={inc:1,exp:1,sav:1,rem:1},addCat=false,cp=null,cpMsg="",ed=null;
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}if(window.cloud&&cloud.push)cloud.push()};
 const won=n=>(n<0?"-":"")+Math.abs(Math.round(n)).toLocaleString("ko-KR")+"원";
 const short=n=>{const a=Math.abs(n);const s=a>=1e8?(a/1e8).toFixed(1)+"억":a>=1e4?Math.round(a/1e4)+"만":a.toLocaleString();return(n<0?"-":"")+s};
@@ -90,7 +95,7 @@ return `<div class="cp"><div class="cpt">${month}월의 항목 ${n}개를 아래
 <div class="cpq"><button class="lk go" data-a="cpdo" data-k="${k}">복사하기</button><button class="lk" data-a="cpx">닫기</button></div>${cpMsg?`<div class="cpm">${cpMsg}</div>`:""}</div>`}
 const fmtD=d=>{if(!d)return"";const w="일월화수목금토"[new Date(d+"T00:00:00").getDay()];return +d.slice(5,7)+"/"+ +d.slice(8,10)+" ("+w+")"};
 const defD=()=>{const n=new Date(),mm=String(month).padStart(2,"0");return (n.getFullYear()===S.year&&n.getMonth()+1===month)?S.year+"-"+mm+"-"+String(n.getDate()).padStart(2,"0"):S.year+"-"+mm+"-01"};
-const dateIn=k=>{const mm=String(month).padStart(2,"0");return `<input type="date" class="dt" id="d-${k}" value="${defD()}" min="${S.year}-${mm}-01" max="${S.year}-${mm}-${String(new Date(S.year,month,0).getDate()).padStart(2,"0")}" aria-label="날짜">`};
+const dateIn=(k,val)=>{const mm=String(month).padStart(2,"0");return `<div class="dtr"><button class="ib" data-a="dd" data-k="${k}" data-v="-1" aria-label="하루 전">‹</button><input type="date" class="dt" id="d-${k}" value="${val||defD()}" min="${S.year}-${mm}-01" max="${S.year}-${mm}-${String(new Date(S.year,month,0).getDate()).padStart(2,"0")}" aria-label="날짜"><button class="ib" data-a="dd" data-k="${k}" data-v="1" aria-label="하루 뒤">›</button></div>`};
 function chart(T,k,n,c){const W=360,H=150,pt=16,pb=22,vals=T.map(t=>t[k]),mx=Math.max(1,...vals),mn=Math.min(0,...vals),neg=mn<0?12:0,sc=(H-pt-pb-neg)/(mx-mn),zero=pt+mx*sc,gw=W/12,bw=gw-10;
 let g=`<line x1="0" x2="${W}" y1="${zero}" y2="${zero}" stroke="var(--line)"/>`;
 vals.forEach((v,i)=>{const h=Math.abs(v)*sc,x=i*gw+5,y=v>=0?zero-h:zero;
@@ -109,12 +114,49 @@ ${acct()}<div class="card"><div class="sum">
 <div><small><i class="dot" style="background:var(--sav)"></i>올해 저축</small><b>${won(Y.sav)}</b></div>
 <div><small><i class="dot" style="background:var(--rem)"></i>올해 남은 돈</small><b class="${Y.rem<0?"neg":""}">${won(Y.rem)}</b></div></div></div>
 ${ser.map(([k,n,c])=>chart(T,k,n,c)).join("")}
-<div class="mgrid">${T.map((t,i)=>`<button class="mb" data-a="open" data-v="${i+1}"><b>${i+1}월</b><small>남은 돈</small><div class="r ${t.rem<0?"neg":t.inc||t.exp?"pos":""}">${t.inc||t.exp||t.sav?short(t.rem)+"원":"기록하기"}</div></button>`).join("")}</div><p class="cnote" style="text-align:center;margin-top:14px">버전 3 · ${!window.cloud?"로그인 기능 준비 중":window.cloud.failed?"로그인 불러오기 실패":"로그인 사용 가능"}</p>`}
+<div class="mgrid">${T.map((t,i)=>`<button class="mb" data-a="open" data-v="${i+1}"><b>${i+1}월</b><small>남은 돈</small><div class="r ${t.rem<0?"neg":t.inc||t.exp?"pos":""}">${t.inc||t.exp||t.sav?short(t.rem)+"원":"기록하기"}</div></button>`).join("")}</div><p class="cnote" style="text-align:center;margin-top:14px">버전 4 · ${!window.cloud?"로그인 기능 준비 중":window.cloud.failed?"로그인 불러오기 실패":"로그인 사용 가능"}</p>`}
 
+const clrE=()=>["d-e","e-n","e-a","e-c"].forEach(i=>{const e=document.getElementById(i);if(e)e.value=""});
+function row(x,k,i){if(ed&&ed.k===k&&ed.i===i)return editRow(x,k,i);
+return `<div class="it"><span><small class="dd">${fmtD(x.d)}</small>${esc(x.n)}</span><span>${won(x.a)}</span><button class="x pn" data-a="edit" data-k="${k}" data-v="${i}" aria-label="수정">✎</button><button class="x" data-a="del" data-k="${k}" data-v="${i}" aria-label="삭제">✕</button></div>`}
+function editRow(x,k,i){return `<div class="it ed"><div class="add">${dateIn("e",x.d)}<input class="nm" id="e-n" value="${esc(x.n)}" maxlength="30"><input class="am" id="e-a" value="${x.a}" inputmode="numeric">${k==="living"?`<select id="e-c">${S.cats.map(c=>`<option ${c===x.c?"selected":""}>${esc(c)}</option>`).join("")}</select>`:""}<button class="ab" data-a="esave" data-k="${k}" data-v="${i}">저장</button><button class="lk" data-a="ecancel" style="margin:0">취소</button></div></div>`}
+const PAL=["#D8573C","#E0A526","#3A6FD8","#1F8A70","#8A5CD0","#D1507F","#4E9FB5","#7A8B3A"];
+function catChart(o){const r=S.cats.map((c,i)=>({c,a:sum(o.living.filter(x=>x.c===c)),col:PAL[i%PAL.length]})).filter(x=>x.a>0).sort((p,q)=>q.a-p.a);
+if(!r.length)return"";const tl=r.reduce((m,x)=>m+x.a,0),mx=r[0].a;
+return `<div class="cbx">${r.map(x=>`<button class="cb" data-a="cat" data-v="${esc(x.c)}"><div class="cl"><span>${esc(x.c)}</span><span>${won(x.a)} · ${Math.round(x.a/tl*100)}%</span></div><div class="ct"><i style="width:${Math.max(3,x.a/mx*100)}%;background:${x.col}"></i></div></button>`).join("")}</div>`}
+const STOP=new Set(["결제","구매","카드","현금","이번","오늘","어제"]);
+const toks=(n,skip)=>[...new Set(String(n).toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(w=>w.length>=2&&!/^\d+$/.test(w)&&!STOP.has(w)&&w!==skip))];
+function kw(list){const m={};list.forEach(x=>toks(x.n,(x.c||"").toLowerCase()).forEach(w=>{const r=m[w]||(m[w]={w,n:0,a:0});r.n++;r.a+=x.a}));return Object.values(m).filter(r=>r.n>=2).sort((p,q)=>q.n-p.n||q.a-p.a).slice(0,3)}
+const kwTxt=l=>l.map(r=>`'${esc(r.w)}' ${r.n}회 (${won(r.a)})`).join(", ");
+function ai(o,t){
+const pc=(a,b)=>b?Math.round(a/b*100):0,mx=l=>l.reduce((m,x)=>!m||x.a>m.a?x:m,null);
+const head=`<div class="card ai"><div class="sec" style="margin:0"><h2>분석 리포트</h2></div><p class="sub">입력한 내용으로 자동 계산했어요.</p>`;
+if(!t.exp&&!t.sav)return head+`<div class="empty">지출이나 저축을 기록하면 어디에 돈이 많이 쓰였는지 분석해 드려요.</div></div>`;
+const sp=[],sv=[];
+const cats=S.cats.map(c=>({n:c,a:sum(o.living.filter(x=>x.c===c))})).filter(x=>x.a>0).sort((p,q)=>q.a-p.a);
+const all=[...o.fixed.map(x=>({n:x.n,a:x.a,g:"고정지출"})),...cats.map(x=>({n:x.n,a:x.a,g:"생활지출"}))];
+const big=mx(all);
+if(big)sp.push(`돈이 가장 많이 나간 곳: <b>${esc(big.n)}</b> (${big.g}) · ${won(big.a)} — 지출의 ${pc(big.a,t.exp)}%`);
+if(t.exp)sp.push(`지출 ${won(t.exp)} = 고정지출 ${pc(t.fx,t.exp)}% + 생활지출 ${pc(t.lv,t.exp)}%${t.inc?` (소득의 ${pc(t.exp,t.inc)}%)`:""}`);
+const f=mx(o.fixed);if(f&&o.fixed.length>1)sp.push(`고정지출 1위: ${esc(f.n)} · ${won(f.a)} (고정지출의 ${pc(f.a,t.fx)}%)`);
+if(cats.length){sp.push(`생활지출 1위 카테고리: ${esc(cats[0].n)} · ${won(cats[0].a)} (생활지출의 ${pc(cats[0].a,t.lv)}%)`);if(cats[1])sp.push(`2위 카테고리: ${esc(cats[1].n)} · ${won(cats[1].a)}`)}
+const bs=mx(o.living);if(bs)sp.push(`가장 큰 생활지출 1건: ${fmtD(bs.d)} ${esc(bs.n)} · ${won(bs.a)}`);
+const k1=kw(o.living);if(k1.length)sp.push(`이번 달 생활지출에서 자주 나온 단어: ${kwTxt(k1)}`);
+const yl=[];for(let m=1;m<=12;m++){const d=S.d[S.year+"-"+m];if(d)yl.push(...d.living)}
+const k2=kw(yl);if(k2.length&&yl.length>o.living.length)sp.push(`올해 전체로 자주 나온 단어: ${kwTxt(k2)}`);
+if(month>1){const p=tot(S.year,month-1);if(p.lv>0&&t.lv>0){const d=t.lv-p.lv;sp.push(`${month-1}월 대비 생활지출: ${d>=0?"+":"-"}${won(Math.abs(d))} (${d>=0?"+":"-"}${Math.abs(pc(d,p.lv))}%)`)}}
+if(t.rem<0)sp.unshift(`저축과 지출이 소득보다 ${won(-t.rem)} 많아요.`);
+if(t.sav){sv.push(`이번 달 저축 ${won(t.sav)}${t.inc?` · 소득의 ${pc(t.sav,t.inc)}%`:""}`);
+const s1=mx(o.saving);if(s1&&o.saving.length>1)sv.push(`저축 1위: ${esc(s1.n)} · ${won(s1.a)} (저축의 ${pc(s1.a,t.sav)}%)`);
+const ks=kw(o.saving);if(ks.length)sv.push(`자주 나온 단어: ${kwTxt(ks)}`);
+if(t.inc){const r=pc(t.sav,t.inc);sv.push(r>=20?"저축률이 20% 이상이에요. 좋은 흐름이에요.":r<10?"저축률이 10% 미만이에요. 지출 1위 항목부터 줄여 보는 걸 추천해요.":"저축률이 10~20%예요. 조금만 더 늘려 보세요.")}}
+else sv.push("이번 달 저축 기록이 없어요.");
+const ul=l=>`<ul>${l.map(x=>`<li>${x}</li>`).join("")}</ul>`;
+return head+(sp.length?`<h3>지출</h3>${ul(sp)}`:"")+`<h3>저축</h3>${ul(sv)}</div>`}
 function list(key,label,color,opts={}){
 const o=M(S.year,month),a=o[key],isShut=opts.fold&&shut[key];
 return `<div class="card ${isShut?"shut":""}"><button class="sec" data-a="${opts.fold?"fold":"noop"}" data-v="${key}"><h2><i class="dot" style="background:${color}"></i>${label}${opts.fold?'<span class="car">▾</span>':""}</h2><span class="t">${won(sum(a))}</span></button>
-${isShut?"":a.map((x,i)=>({...x,i})).sort(byD).map(x=>`<div class="it"><span><small class="dd">${fmtD(x.d)}</small>${esc(x.n)}</span><span>${won(x.a)}</span><button class="x" data-a="del" data-k="${key}" data-v="${x.i}" aria-label="삭제">✕</button></div>`).join("")||`<div class="empty">${opts.empty}</div>`}
+${isShut?"":a.map((x,i)=>({...x,i})).sort(byD).map(x=>row(x,key,x.i)).join("")||`<div class="empty">${opts.empty}</div>`}
 ${isShut?"":`<div class="add">${dateIn(key)}<input class="nm" id="n-${key}" placeholder="항목 이름" maxlength="30"><input class="am" id="a-${key}" placeholder="금액" inputmode="numeric"><button class="ab" data-a="add" data-k="${key}">추가</button></div>${opts.fold?cpUI(key):""}`}</div>`}
 
 function monthView(){
@@ -128,12 +170,14 @@ ${list("saving","저축","var(--sav)",{fold:1,empty:"적금, 투자 등 저축�
 <div class="card"><div class="sec" style="margin:0"><h2><i class="dot" style="background:var(--exp)"></i>지출</h2><span class="t">${won(t.exp)}</span></div></div>
 ${list("fixed","고정지출","var(--exp)",{fold:1,empty:"월세, 통신비, 보험료 등을 추가해 보세요."})}
 <div class="card"><div class="sec" style="margin-bottom:10px"><h2><i class="dot" style="background:var(--exp)"></i>생활지출</h2><span class="t">${won(t.lv)}</span></div>
+${catChart(o)}
 <div class="chips">${S.cats.map(c=>`<button class="chip ${c===cat?"on":""}" data-a="cat" data-v="${esc(c)}">${esc(c)}<small>${won(per(c))}</small></button>`).join("")}<button class="chip" data-a="newcat" aria-label="카테고리 추가">＋ 추가</button></div>
 ${addCat?`<div class="add" style="margin:0 0 8px"><input class="nm" id="nc" placeholder="새 카테고리 이름" maxlength="10"><button class="ab" data-a="savecat">만들기</button></div>`:""}
-${items.map(x=>`<div class="it"><span><small class="dd">${fmtD(x.d)}</small>${esc(x.n)}</span><span>${won(x.a)}</span><button class="x" data-a="del" data-k="living" data-v="${x.i}" aria-label="삭제">✕</button></div>`).join("")||`<div class="empty">${esc(cat)}에 쓴 돈을 기록해 보세요.</div>`}
+${items.map(x=>row(x,"living",x.i)).join("")||`<div class="empty">${esc(cat)}에 쓴 돈을 기록해 보세요.</div>`}
 <div class="add">${dateIn("living")}<input class="nm" id="n-living" placeholder="${esc(cat)} 내용" maxlength="30"><input class="am" id="a-living" placeholder="금액" inputmode="numeric"><button class="ab" data-a="add" data-k="living">추가</button></div></div>
 <div class="card"><div class="calc"><div><span>소득</span><span>${won(t.inc)}</span></div><div><span>− 저축</span><span>${won(t.sav)}</span></div><div><span>− 고정지출</span><span>${won(t.fx)}</span></div><div><span>− 생활지출</span><span>${won(t.lv)}</span></div></div></div>
-<div class="bar"><span>${month}월에 남은 돈</span><b style="color:${t.rem<0?"var(--exp)":"var(--rem)"}">${won(t.rem)}</b></div>`}
+<div class="bar"><span>${month}월에 남은 돈</span><b style="color:${t.rem<0?"var(--exp)":"var(--rem)"}">${won(t.rem)}</b></div>
+${ai(o,t)}`}
 
 window.App={get:()=>JSON.stringify({cats:S.cats,d:S.d}),set:o=>{if(o.cats)S.cats=o.cats;S.d=o.d||{};try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}render()},hasData:()=>Object.values(S.d).some(o=>o.income.length+o.saving.length+o.fixed.length+o.living.length)};
 const ERR={"auth/popup-blocked":"팝업이 차단됐어요. 이메일로 로그인해 주세요.","auth/popup-closed-by-user":"로그인 창이 닫혔어요.","auth/invalid-credential":"이메일이나 비밀번호가 맞지 않아요.","auth/wrong-password":"이메일이나 비밀번호가 맞지 않아요.","auth/user-not-found":"가입되지 않은 이메일이에요. 새 계정 만들기를 눌러 주세요.","auth/email-already-in-use":"이미 가입된 이메일이에요. 로그인을 눌러 주세요.","auth/weak-password":"비밀번호는 6자 이상이어야 해요.","auth/invalid-email":"이메일 형식을 확인해 주세요.","auth/unauthorized-domain":"이 주소가 Firebase 허용 도메인에 없어요.","auth/missing-password":"비밀번호를 입력해 주세요."};
@@ -154,6 +198,7 @@ if(id){const e=document.getElementById(id);if(e)e.focus()}}
 document.addEventListener("click",e=>{
 const b=e.target.closest("[data-a]");if(!b)return;
 const a=b.dataset.a,v=b.dataset.v,k=b.dataset.k;
+if(["edit","ecancel","del","mo","open","home","cat"].includes(a)){ed=null;clrE()}
 if(a==="yr")S.year+=+v;
 else if(a==="sh")show[v]=!show[v];
 else if(a==="open"){view="m";month=+v;cp=null;window.scrollTo(0,0)}
@@ -164,6 +209,14 @@ else if(a==="cat")cat=v;
 else if(a==="newcat"){addCat=!addCat}
 else if(a==="savecat"){const n=document.getElementById("nc").value.trim();if(n&&!S.cats.includes(n)){S.cats.push(n);cat=n}addCat=false;document.getElementById("nc")&&0}
 else if(a==="del"){M(S.year,month)[k].splice(+v,1)}
+else if(a==="edit"){ed={k,i:+v}}
+else if(a==="ecancel"){}
+else if(a==="esave"){const ea=document.getElementById("e-a"),amt=parseInt(String(ea.value).replace(/[^0-9]/g,""),10);if(!amt){ea.focus();return}
+const it=M(S.year,month)[k][+v],nn=document.getElementById("e-n").value.trim(),dd=document.getElementById("d-e").value,ec=document.getElementById("e-c");
+it.n=nn||it.n;it.a=amt;if(dd)it.d=dd;if(ec&&ec.value)it.c=ec.value;ed=null;clrE()}
+else if(a==="dd"){const el=document.getElementById("d-"+k),dt=new Date((el.value||defD())+"T00:00:00");dt.setDate(dt.getDate()+ +v);
+let r=dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0")+"-"+String(dt.getDate()).padStart(2,"0");
+if(el.min&&r<el.min)r=el.min;if(el.max&&r>el.max)r=el.max;el.value=r;return}
 else if(a==="lo"){cloud.open=true;cloud.err=""}
 else if(a==="lx"){cloud.open=false}
 else if(a==="out"){cloud.out();return}
@@ -188,7 +241,7 @@ if(k==="living")it.c=cat;
 M(S.year,month)[k].push(it);n.value="";m.value=""}
 else return;
 save();render()});
-document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.tagName==="INPUT"){const r=e.target.closest(".add");const bt=r&&r.querySelector("button");if(bt)bt.click()}});
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.tagName==="INPUT"){const r=e.target.closest(".add");const bt=r&&r.querySelector(".ab");if(bt)bt.click()}});
 render();
 </script>
 <script type="module">
